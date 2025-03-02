@@ -17,7 +17,6 @@ if not GOOGLE_API_KEY:
 st.title("AI-Powered Examination Application")
 task = st.sidebar.selectbox("Select a Task", ["MCQ Question", "Code Evaluation", "Answer Evaluation"])
 
-
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
 
 def MCQ_Generate(keyword, experience):
@@ -43,7 +42,6 @@ def generate_subjective_questions(keywords, experience):
     prompt = f"Generate 5 subjective programming questions for {keywords} at {experience} level in JSON format. Each question should have 'question' and 'expected_answer' keys. Do not include any extra text other than the json output."
     response = llm.invoke(prompt)
     return response
-
 
 def evaluate_answer(question, student_answer):
     """Evaluates student's answer using LLM."""
@@ -92,7 +90,17 @@ def evaluate_code(question, student_code):
         st.error(f"An unexpected error occurred: {e}")
         return None
 
-
+# Initialize session state variables if not already initialized
+if 'exam_started' not in st.session_state:
+    st.session_state.exam_started = False
+if 'llm_response' not in st.session_state:
+    st.session_state.llm_response = None
+if 'questions' not in st.session_state:
+    st.session_state.questions = None
+if 'student_answers' not in st.session_state:
+    st.session_state.student_answers = None
+if 'evaluation_done' not in st.session_state:  # Initialize evaluation_done
+    st.session_state.evaluation_done = False
 
 if task == "MCQ Question":
     st.title("Welcome to MCQ Test")
@@ -101,15 +109,6 @@ if task == "MCQ Question":
     experience = query_params.get("experience", ["3"])[0]
     st.write("Keywords:", keywords[0])
     st.write("Experience:", experience)
-
-    if 'exam_started' not in st.session_state:
-        st.session_state.exam_started = False
-    if 'llm_response' not in st.session_state:
-        st.session_state.llm_response = None
-    if 'questions' not in st.session_state:
-        st.session_state.questions = None
-    if 'student_answers' not in st.session_state:
-        st.session_state.student_answers = None
 
     if not st.session_state.exam_started:
         if st.button("Start Exam"):
@@ -171,7 +170,6 @@ if task == "MCQ Question":
         else:
             if st.session_state.exam_started:
                 st.write("Questions were not properly generated.")
-
 
 elif task == "Answer Evaluation":
     # Streamlit UI
