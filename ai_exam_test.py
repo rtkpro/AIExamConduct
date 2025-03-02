@@ -182,7 +182,7 @@ elif task == "Answer Evaluation":
     experience = "3"
 
     # Get query parameters from URL
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params
     if "keywords" in query_params:
         keywords = query_params["keywords"][0]
     if "experience" in query_params:
@@ -256,7 +256,7 @@ elif task == "Code Evaluation":
     experience = "3"
 
     # Get query parameters from URL
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params
     if "keywords" in query_params:
         keywords = query_params["keywords"][0]
     if "experience" in query_params:
