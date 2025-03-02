@@ -65,7 +65,7 @@ def evaluate_answer(question, student_answer):
 
 def generate_programming_questions(keywords, experience):
     """Generates programming questions using LLM."""
-    prompt = f"Generate 5 programming questions for {keywords} at {experience} level in JSON format. Each question should have 'question' and 'expected_code' keys. Do not include any extra text other than the json output."
+    prompt = f"Generate five (5) programming questions for {keywords} at {experience} level in JSON format. Each question should have 'question' and 'expected_code' keys. Do not include any extra text other than the json output."
     response = llm.invoke(prompt)
     return response
 
@@ -76,7 +76,26 @@ def evaluate_code(question, student_code):
     Expected Code: {question['expected_code']}
     Student Code: {student_code}
 
-    Provide a strict percentage score (0-100) reflecting the accuracy and functionality of the student code compared to the expected code. Provide feedback that explains the score. If the student code is entirely incorrect, the score should be 0. If it perfectly matches, it should be 100. Provide the result in JSON format with 'score' and 'feedback' keys. Do not include any extra text other than the json output."""
+    In your evaluation:
+    - Test the student code with sample inputs. 
+    - Compare the output of the student's code to the expected output.
+    - Evaluate whether the student's code is logically correct, efficient, and complete.
+    - If the student's code produces the correct output, assign a higher score.
+    - If the code is partially correct or has some minor issues, provide a lower score.
+    - If the student's code is None/empty, completely incorrect or doesn't compile, assign a low score (e.g., 0).
+
+    Please provide:
+    1. A percentage score (0-100).
+    2. A detailed feedback that explains why the code is correct/incorrect, along with any possible improvements.
+
+    Format your response in JSON as follows:
+    
+        "score": <percentage>,
+        "feedback": "<feedback string>"
+    
+    Only provide the JSON response, no extra text.
+    """
+    
     response = llm.invoke(prompt)
     try:
         json_string = response.content.strip().replace('```json', '').replace('```', '').strip()
@@ -101,13 +120,15 @@ if 'student_answers' not in st.session_state:
     st.session_state.student_answers = None
 if 'evaluation_done' not in st.session_state:  # Initialize evaluation_done
     st.session_state.evaluation_done = False
+if 'student_codes' not in st.session_state:  # Initialize student_codes for Code Evaluation
+    st.session_state.student_codes = {}
 
 if task == "MCQ Question":
     st.title("Welcome to MCQ Test")
     query_params = st.query_params
-    keywords = query_params.get("keywords", ["python"])[0].split(",")
+    keywords = query_params.get("keywords", ["python"])
     experience = query_params.get("experience", ["3"])[0]
-    st.write("Keywords:", keywords[0])
+    st.write("Keywords:", keywords)
     st.write("Experience:", experience)
 
     if not st.session_state.exam_started:
@@ -182,9 +203,9 @@ elif task == "Answer Evaluation":
     # Get query parameters from URL
     query_params = st.query_params
     if "keywords" in query_params:
-        keywords = query_params["keywords"][0]
+        keywords = query_params["keywords"]
     if "experience" in query_params:
-        experience = query_params["experience"][0]
+        experience = query_params["experience"]
 
     if 'questions' not in st.session_state:
         st.session_state.questions = None
@@ -256,13 +277,13 @@ elif task == "Code Evaluation":
     # Get query parameters from URL
     query_params = st.query_params
     if "keywords" in query_params:
-        keywords = query_params["keywords"][0]
+        keywords = query_params["keywords"]
     if "experience" in query_params:
-        experience = query_params["experience"][0]
+        experience = query_params["experience"]
 
     if 'questions' not in st.session_state:
         st.session_state.questions = None
-        st.session_state.student_codes = {}
+        st.session_state.student_codes = {}  # Initialize student_codes here
         st.session_state.evaluations = {}
         st.session_state.current_question_index = 0
         st.session_state.exam_started = False
@@ -270,7 +291,7 @@ elif task == "Code Evaluation":
 
     if st.button("Start Exam") and not st.session_state.exam_started:
         st.session_state.questions = None  # Reset questions before generating new ones.
-        st.session_state.student_codes = {}
+        st.session_state.student_codes = {}  # Reset student_codes
         st.session_state.evaluations = {}
         st.session_state.current_question_index = 0
         st.session_state.exam_started = True
