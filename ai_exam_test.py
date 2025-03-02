@@ -174,9 +174,11 @@ if task == "MCQ Question":
                 return correct_answers
 
             for i, q in enumerate(st.session_state.questions):
-                st.subheader(q['question'])
+                question_text = q.get('question', 'No question provided')
+                st.subheader(f"Question {i + 1}: {question_text}")
+                
                 selected_index = None
-                if st.session_state.student_answers and st.session_state.student_answers[i] in q['options']:
+                if st.session_state.student_answers and st.session_state.student_answers[i] in q.get('options', []):
                     selected_index = q['options'].index(st.session_state.student_answers[i])
 
                 answer = st.radio(
