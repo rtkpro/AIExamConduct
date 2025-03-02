@@ -320,6 +320,6 @@ elif task == "Code Evaluation":
             else:
                 st.write("Evaluation not available or invalid format.")
 
-    if not st.session_state.exam_started and not st.session_state.evaluation_done:
-        st.write(f"Current keyword: {keywords}, Experience level: {experience}")
-        #st.write("Change the url parameter to change keyword and experience level. Click 'Start Exam' to begin.")
+    # if not st.session_state.exam_started and not st.session_state.evaluation_done:
+    #     st.write(f"Current keyword: {keywords}, Experience level: {experience}")
+    #     #st.write("Change the url parameter to change keyword and experience level. Click 'Start Exam' to begin.")
