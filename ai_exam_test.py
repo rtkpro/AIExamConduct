@@ -19,9 +19,9 @@ task = st.sidebar.selectbox("Select a Task", ["MCQ Question", "Code Evaluation",
 
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
 
-def MCQ_Generate(keyword, experience):
+def MCQ_Generate(keywords, experience):
     research_model = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
-    message = [("system", f"Generate ten (10) MCQ questions and their correct answers with four (4) options based on the user's skillset and experience in {keyword}: {experience} in JSON Format."), ("human", "")]
+    message = [("system", f"Generate ten (10) MCQ questions and their correct answers with four (4) options based on the user's skillset and experience in {keywords}: {experience} in JSON Format."), ("human", "")]
     return research_model.invoke(message)
 
 def extract_qa(llm_response: AIMessage):
@@ -124,17 +124,32 @@ if 'student_codes' not in st.session_state:  # Initialize student_codes for Code
     st.session_state.student_codes = {}
 
 if task == "MCQ Question":
-    st.title("Welcome to MCQ Test")
+    st.title("MCQ Test for Students")
 
-    # Default values
     keywords = "Python"
-    experience = "3"
+    experience = "3 years of experience"
 
     query_params = st.query_params
-    keywords = query_params.get("keywords")
-    experience = query_params.get("experience")
-    #st.write("Keywords:", keywords)
-    #st.write("Experience:", experience)
+    if "keywords" in query_params:
+        keywords = query_params["keywords"]
+    if "experience" in query_params:
+        try:
+            experience = int(query_params["experience"]) #Convert to int
+            experience = str(experience) + " years of experience"
+        except ValueError:
+            st.error("Invalid experience value in URL. Must be an integer.")
+            st.stop()
+
+    if 'exam_started' not in st.session_state:
+        st.session_state.exam_started = False
+    if 'llm_response' not in st.session_state:
+        st.session_state.llm_response = None
+    if 'questions' not in st.session_state:
+        st.session_state.questions = None
+    if 'student_answers' not in st.session_state:
+        st.session_state.student_answers = None
+    if 'evaluation_done' not in st.session_state:
+        st.session_state.evaluation_done = False
 
     if not st.session_state.exam_started:
         if st.button("Start Exam"):
@@ -145,8 +160,9 @@ if task == "MCQ Question":
                 st.session_state.student_answers = [None] * len(st.session_state.questions)
             else:
                 st.error("Failed to generate questions. Please check the keywords and experience.")
+                print("LLM Response:", st.session_state.llm_response.content)
                 st.stop()
-
+    #Rest of code is the same.
     if st.session_state.exam_started:
         if st.session_state.questions:
             def calculate_score(student_answers):
@@ -159,7 +175,6 @@ if task == "MCQ Question":
 
             for i, q in enumerate(st.session_state.questions):
                 st.subheader(q['question'])
-                # Find the index of the selected answer
                 selected_index = None
                 if st.session_state.student_answers and st.session_state.student_answers[i] in q['options']:
                     selected_index = q['options'].index(st.session_state.student_answers[i])
@@ -167,7 +182,7 @@ if task == "MCQ Question":
                 answer = st.radio(
                     "Choose one option",
                     q['options'],
-                    index=selected_index, # Use the numerical index
+                    index=selected_index,
                     key=f"{q['question']}_{i}"
                 )
                 if st.session_state.student_answers:
@@ -193,9 +208,14 @@ if task == "MCQ Question":
                     st.session_state.questions = None
                     st.session_state.student_answers = None
                     st.session_state.llm_response = None
+                    st.session_state.evaluation_done = True
         else:
             if st.session_state.exam_started:
                 st.write("Questions were not properly generated.")
+
+    if not st.session_state.exam_started and not st.session_state.evaluation_done:
+        st.write(f"Current keyword: {keywords}, Experience level: {experience}")
+        st.write("Click 'Start Exam' to begin.")
 
 elif task == "Answer Evaluation":
     # Streamlit UI
@@ -268,7 +288,7 @@ elif task == "Answer Evaluation":
                 st.write("Evaluation not available or invalid format.")
 
     if not st.session_state.exam_started and not st.session_state.evaluation_done:
-        #st.write(f"Current keyword: {keywords}, Experience level: {experience}")
+        st.write(f"Current keyword: {keywords}, Experience level: {experience}")
         st.write("Click 'Start Exam' to begin.")
 
 elif task == "Code Evaluation":
@@ -345,6 +365,6 @@ elif task == "Code Evaluation":
                 st.write("Evaluation not available or invalid format.")
 
     if not st.session_state.exam_started and not st.session_state.evaluation_done:
+        st.write(f"Current keyword: {keywords}, Experience level: {experience}")
         st.write("Click 'Start Exam' to begin.")
-        #st.write(f"Current keyword: {keywords}, Experience level: {experience}")
         #st.write("Change the url parameter to change keyword and experience level. Click 'Start Exam' to begin.")
