@@ -96,7 +96,7 @@ def evaluate_code(question, student_code):
 
 if task == "MCQ Question":
     st.title("Welcome to MCQ Test")
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params
     keywords = query_params.get("keywords", ["python"])[0].split(",")
     experience = query_params.get("experience", ["3"])[0]
     st.write("Keywords:", keywords[0])
