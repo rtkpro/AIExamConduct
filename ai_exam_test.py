@@ -306,7 +306,7 @@ elif task == "Code Evaluation":
                     st.rerun()
                 else:
                     st.session_state.exam_started = False
-                    st.session_state.evaluation_done = True
+                    st.session_state.evaluation_done = False
                     st.rerun()
 
     if st.session_state.evaluation_done:
