@@ -125,11 +125,16 @@ if 'student_codes' not in st.session_state:  # Initialize student_codes for Code
 
 if task == "MCQ Question":
     st.title("Welcome to MCQ Test")
+
+    # Default values
+    keywords = "Python"
+    experience = "3"
+
     query_params = st.query_params
-    keywords = query_params.get("keywords", ["python"])
-    experience = query_params.get("experience", ["3"])[0]
-    st.write("Keywords:", keywords)
-    st.write("Experience:", experience)
+    keywords = query_params.get("keywords")
+    experience = query_params.get("experience")
+    #st.write("Keywords:", keywords)
+    #st.write("Experience:", experience)
 
     if not st.session_state.exam_started:
         if st.button("Start Exam"):
@@ -263,7 +268,7 @@ elif task == "Answer Evaluation":
                 st.write("Evaluation not available or invalid format.")
 
     if not st.session_state.exam_started and not st.session_state.evaluation_done:
-        st.write(f"Current keyword: {keywords}, Experience level: {experience}")
+        #st.write(f"Current keyword: {keywords}, Experience level: {experience}")
         st.write("Click 'Start Exam' to begin.")
 
 elif task == "Code Evaluation":
@@ -340,5 +345,6 @@ elif task == "Code Evaluation":
                 st.write("Evaluation not available or invalid format.")
 
     if not st.session_state.exam_started and not st.session_state.evaluation_done:
-        st.write(f"Current keyword: {keywords}, Experience level: {experience}")
+        st.write("Click 'Start Exam' to begin.")
+        #st.write(f"Current keyword: {keywords}, Experience level: {experience}")
         #st.write("Change the url parameter to change keyword and experience level. Click 'Start Exam' to begin.")
